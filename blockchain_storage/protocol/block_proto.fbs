@@ -1,0 +1,9 @@
+namespace blockchain_storage.protocol;
+
+table block {
+    version: uint;
+    merkle_root: string;
+    parent_block_hash: string;
+    timestamp: ulong;
+    data_block: [byte];
+}

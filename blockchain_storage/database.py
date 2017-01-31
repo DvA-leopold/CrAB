@@ -3,6 +3,7 @@ import hashlib
 
 import binascii
 import time
+from typing import Tuple, Union
 
 from blockchain_storage import genesys_data, zero_hash_str
 from blockchain_storage.merkle_tree import MerkleTree
@@ -23,16 +24,15 @@ class Database:
             self.blockchain_height = 1
 
     def put_block(self, data: str):
-        data_hash = hashlib.sha256(hashlib.sha256(data))
-        serialized_data = self.serialize(data)
-        self.database.Put(data_hash.hexdigest(), serialized_data)
-        self.last_block_hash = data_hash  # TODO write new last block hash to db
+        data_hash = hashlib.sha256(hashlib.sha256(data)).digest()
+        self.database.Put(data_hash, self.serialize(data))
+        self.last_block_hash = data_hash
         self.blockchain_height += 1
+        self.database.Put('last_block_hash'.encode(), data_hash)
 
-    def get_block(self, key: str, as_raw_data=False) -> Block:
+    def get_block(self, key: str, as_raw_data=False) -> Union[Block, bytes]:
         raw_data = self.database.Get(key.encode())
-        data_block = Block()
-        return raw_data if as_raw_data else data_block.ParseFromString(raw_data)
+        return raw_data if as_raw_data else Block().ParseFromString(raw_data)
 
     def serialize(self, data: str) -> bytes:
         data_block = Block()
@@ -43,7 +43,7 @@ class Database:
         data_block.data_block = data.encode()
         return data_block.SerializeToString()
 
-    def check_genesys_and_last_blocks(self):
+    def check_genesys_and_last_blocks(self) -> Tuple[bytes, bytes]:
         serialized_data = self.serialize(genesys_data)
         genesys_block_hash = hashlib.sha256(hashlib.sha256(serialized_data)).digest()
         last_block_hash = genesys_block_hash

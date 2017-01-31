@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package blockchain;
+
+message Block {
+    uint32 version = 1 [default = 1];
+    bytes merkle_root = 2;
+    bytes parent_block = 3;
+    uint32 timestamp = 4;
+    bytes data_block = 5;
+}

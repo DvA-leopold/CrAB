@@ -1,9 +1,6 @@
 import hashlib
-
 import time
-
 import binascii
-
 from blockchain_storage.protocol.block_pb2 import Block
 
 data_block = Block()

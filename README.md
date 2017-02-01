@@ -1,2 +1,2 @@
 # CrAB
-cryptocoins based on blockchain (for training purposes)
+simple blockchain technology realisation, expected to be extendable for different purpose in future.

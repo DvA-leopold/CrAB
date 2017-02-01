@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='block.proto',
   package='blockchain',
   syntax='proto3',
-  serialized_pb=_b('\n\x0b\x62lock.proto\x12\nblockchain\"j\n\x05\x42lock\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x13\n\x0bmerkle_root\x18\x02 \x01(\x0c\x12\x14\n\x0cparent_block\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\r\x12\x12\n\ndata_block\x18\x05 \x01(\x0c\x62\x06proto3')
+  serialized_pb=_b('\n\x0b\x62lock.proto\x12\nblockchain\"\x8b\x01\n\x05\x42lock\x12\x0f\n\x07version\x18\x01 \x01(\r\x12\x13\n\x0bmerkle_root\x18\x02 \x01(\x0c\x12\x14\n\x0cparent_block\x18\x03 \x01(\x0c\x12\x11\n\ttimestamp\x18\x04 \x01(\r\x12\x33\n\x0ftree_data_block\x18\x05 \x03(\x0b\x32\x1a.blockchain.TreeBranchData\"3\n\x0eTreeBranchData\x12\x13\n\x0bparent_hash\x18\x01 \x01(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -62,8 +62,46 @@ _BLOCK = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='data_block', full_name='blockchain.Block.data_block', index=4,
-      number=5, type=12, cpp_type=9, label=1,
+      name='tree_data_block', full_name='blockchain.Block.tree_data_block', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=28,
+  serialized_end=167,
+)
+
+
+_TREEBRANCHDATA = _descriptor.Descriptor(
+  name='TreeBranchData',
+  full_name='blockchain.TreeBranchData',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='parent_hash', full_name='blockchain.TreeBranchData.parent_hash', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='blockchain.TreeBranchData.data', index=1,
+      number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -80,11 +118,13 @@ _BLOCK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=27,
-  serialized_end=133,
+  serialized_start=169,
+  serialized_end=220,
 )
 
+_BLOCK.fields_by_name['tree_data_block'].message_type = _TREEBRANCHDATA
 DESCRIPTOR.message_types_by_name['Block'] = _BLOCK
+DESCRIPTOR.message_types_by_name['TreeBranchData'] = _TREEBRANCHDATA
 
 Block = _reflection.GeneratedProtocolMessageType('Block', (_message.Message,), dict(
   DESCRIPTOR = _BLOCK,
@@ -92,6 +132,13 @@ Block = _reflection.GeneratedProtocolMessageType('Block', (_message.Message,), d
   # @@protoc_insertion_point(class_scope:blockchain.Block)
   ))
 _sym_db.RegisterMessage(Block)
+
+TreeBranchData = _reflection.GeneratedProtocolMessageType('TreeBranchData', (_message.Message,), dict(
+  DESCRIPTOR = _TREEBRANCHDATA,
+  __module__ = 'block_pb2'
+  # @@protoc_insertion_point(class_scope:blockchain.TreeBranchData)
+  ))
+_sym_db.RegisterMessage(TreeBranchData)
 
 
 # @@protoc_insertion_point(module_scope)

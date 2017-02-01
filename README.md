@@ -1,2 +1,2 @@
 # CrAB
-blockchain technology realisation
+simple blockchain technology realisation, expected to be extendable for different purpose in future.

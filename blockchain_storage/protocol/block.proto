@@ -3,14 +3,18 @@ syntax = "proto3";
 package blockchain;
 
 message Block {
-    uint32 version = 1;
-    bytes merkle_root = 2;
-    bytes parent_block = 3;
-    uint32 timestamp = 4;
-    repeated TreeBranchData tree_data_block = 5;
-}
+    message Header {
+        uint32 version = 1;
+        bytes merkle_root = 2;
+        bytes parent_block = 3;
+        uint32 timestamp = 4;
+    }
 
-message TreeBranchData {
-    bytes parent_hash = 1;
-    bytes data = 2;
+    message TreeBranchData {
+        bytes parent_hash = 1;
+        bytes data = 2;
+    }
+
+    Header header = 1;
+    repeated TreeBranchData branch_data = 2;
 }

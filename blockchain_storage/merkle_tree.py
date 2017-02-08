@@ -1,30 +1,22 @@
 import hashlib
+from typing import Tuple, List
 
 
 class MerkleTree:
     @staticmethod
-    def calculate_merkle_root(data):
-        return None
+    def preprocess_tree(data: Tuple[str, ...]) -> bytes:
+        hash_list = [hashlib.sha256(hashlib.sha256(data_el.encode()).digest()).digest() for data_el in data]
+        while len(hash_list) > 1:
+            if len(hash_list) % 2 != 0:
+                hash_list.append(hash_list[-1])
+            new_hash_list = []
+            for i in range(0, len(hash_list) - 1, 2):
+                concat = hash_list[i] + hash_list[i + 1]
+                concat_hash = hashlib.sha256(hashlib.sha256(concat).digest()).digest()
+                new_hash_list.append(concat_hash)
+            hash_list = new_hash_list
+        return hash_list[0]
 
-    def merkle(self, hashList):
-        if len(hashList) == 1:
-            return hashList[0]
-        newHashList = []
-        # Process pairs. For odd length, the last is skipped
-        for i in range(0, len(hashList) - 1, 2):
-            newHashList.append(self.hash2(hashList[i], hashList[i + 1]))
-        if len(hashList) % 2 == 1:  # odd, hash last item twice
-            newHashList.append(self.hash2(hashList[-1], hashList[-1]))
-        return self.merkle(newHashList)  # TODO unroll recursion call
-
-    def hash2(self, a, b):
-        # Reverse inputs before and after hashing
-        # due to big-endian / little-endian nonsense
-        a1 = a.decode('hex')[::-1]
-        b1 = b.decode('hex')[::-1]
-        h = hashlib.sha256(hashlib.sha256(a1 + b1).digest()).digest()
-        return h[::-1].encode('hex')
-
-    def recalculate_merkle_tree(self):
-        # TODO merkle tree recalculation
-        pass
+    @staticmethod
+    def merkle_proof(hash: bytes):
+        return True

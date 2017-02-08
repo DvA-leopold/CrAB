@@ -23,34 +23,49 @@ class Database:
             self.database.Put('blockchain_height'.encode(), int(1).to_bytes(32, byteorder='big'))
             self.blockchain_height = 1
 
-    def put_block(self, data: str):
-        data_hash = hashlib.sha256(hashlib.sha256(data)).digest()
-        self.database.Put(data_hash, self.serialize(data))
-        self.last_block_hash = data_hash
+    def put_block(self, data: Tuple[str, ...]) -> Tuple[bytes, bytes]:
+        merkle_root, data_block = self.preprocess_data(data)
+        header_block = self.generate_header(merkle_root, len(data))
+        serialized_header_block = header_block.SerializeToString()
+        serialized_data_block = data_block.SerializeToString()
+        block_header_hash = hashlib.sha256(hashlib.sha256(serialized_header_block).digest()).digest()
+        self.database.Put(block_header_hash, serialized_data_block)
+        self.last_block_hash = block_header_hash
         self.blockchain_height += 1
-        self.database.Put('last_block_hash'.encode(), data_hash)
+        self.database.Put('last_block_hash'.encode(), block_header_hash)
+        return serialized_header_block, serialized_data_block
 
-    def get_block(self, key: str, as_raw_data=False) -> Union[Block, bytes]:
-        raw_data = self.database.Get(key.encode())
+    def get_block(self, hash_digest: bytes, as_raw_data=False) -> Union[Block, bytes]:
+        raw_data = self.database.Get(hash_digest)
         return raw_data if as_raw_data else Block().ParseFromString(raw_data)
 
-    def serialize(self, data: str) -> bytes:
+    def generate_header(self, merkle_root: bytes, transactions_count: int) -> Block.Header:
+        header = Block.Header()
+        header.transaction_count = transactions_count
+        header.version = block_proto_version
+        header.merkle_root = merkle_root
+        header.parent_block = binascii.unhexlify(zero_hash_str) if self.blockchain_height == 1 else self.last_block_hash
+        header.timestamp = int(time.time())
+        return header
+
+    @staticmethod
+    def preprocess_data(data: Tuple[str, ...]) -> Tuple[bytes, Block]:
         data_block = Block()
-        data_block.version = block_proto_version
-        data_block.merkle_root = MerkleTree.calculate_merkle_root(data)
-        data_block.parent_block = binascii.unhexlify(zero_hash_str) if self.blockchain_height == 1 else self.last_block_hash
-        data_block.timestamp = int(time.time())
-        data_block.data_block = data.encode()
-        return data_block.SerializeToString()
+        merkle_root = MerkleTree.preprocess_tree(data)
+        for dt in data:
+            data_block.merkle_leaf_data.append(dt)
+        return merkle_root, data_block
 
     def check_genesys_and_last_blocks(self) -> Tuple[bytes, bytes]:
-        serialized_data = self.serialize(genesys_data)
-        genesys_block_hash = hashlib.sha256(hashlib.sha256(serialized_data)).digest()
+        merkle_root, data_block = self.preprocess_data(genesys_data)
+        header_block = self.generate_header(merkle_root, len(genesys_data))
+        genesys_block_hash = hashlib.sha256(hashlib.sha256(header_block.SerializeToString()).digest()).digest()
         last_block_hash = genesys_block_hash
         try:
             self.database.Get(genesys_block_hash)
             last_block_hash = self.database.Get('last_block_hash'.encode())
         except KeyError:
-            self.database.Put(genesys_block_hash, serialized_data)
+            data_block.header = header_block
+            self.database.Put(genesys_block_hash, data_block.SerializeToString())
             self.database.Put('last_block_hash'.encode(), genesys_block_hash)
         return genesys_block_hash, last_block_hash

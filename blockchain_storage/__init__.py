@@ -1,2 +1,2 @@
-genesys_data = 'foo bar'
+genesys_data = ('foo bar',)
 zero_hash_str = '0000000000000000000000000000000000000000000000000000000000000000'

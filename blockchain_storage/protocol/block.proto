@@ -10,11 +10,7 @@ message Block {
         uint32 timestamp = 4;
     }
 
-    message TreeBranchData {
-        bytes parent_hash = 1;
-        bytes data = 2;
-    }
-
-    Header header = 1;
-    repeated TreeBranchData branch_data = 2;
+    uint32 transactions_count = 1;
+    Header header = 2;
+    repeated bytes merkle_leaf_data = 3;
 }

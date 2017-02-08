@@ -38,8 +38,6 @@ def serialisation_test():
         print('leaf: ', binascii.hexlify(leaf.parent_hash))
         print('data: ', leaf.data)
 
-
-
 if __name__ == '__main__':
     # serialisation_test()
     header = Block.Header()

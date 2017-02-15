@@ -1,7 +1,8 @@
+import binascii
 import hashlib
 import time
-import binascii
-from blockchain_storage.protocol.block_pb2 import Block
+
+from protocol import Block
 
 
 def serialisation_test():

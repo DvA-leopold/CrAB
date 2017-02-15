@@ -1,14 +1,13 @@
-import leveldb
-import hashlib
-
 import binascii
+import hashlib
+import leveldb
 import time
 from typing import Tuple, Union
 
 from blockchain_storage import genesys_data, zero_hash_str
 from blockchain_storage.merkle_tree import MerkleTree
-from blockchain_storage.protocol import block_proto_version
-from blockchain_storage.protocol.block_pb2 import Block
+from protocol import block_proto_version
+from protocol.block_pb2 import Block
 
 
 class Database:
@@ -31,7 +30,7 @@ class Database:
         block_header_hash = hashlib.sha256(hashlib.sha256(serialized_header_block).digest()).digest()
         self.database.Put(block_header_hash, serialized_data_block)
         self.last_block_hash = block_header_hash
-        self.blockchain_height += 1
+        self.blockchain_height += 1  # TODO write height to database
         self.database.Put('last_block_hash'.encode(), block_header_hash)
         return block_header_hash, serialized_header_block, serialized_data_block
 

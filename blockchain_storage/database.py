@@ -22,6 +22,10 @@ class Database:
             self.blockchain_height = 1
         _, self.last_block_hash = self.check_genesys_and_last_blocks()
 
+    def __del__(self):
+        self.database.Put('last_block_hash'.encode(), self.last_block_hash)
+        self.database.Put('blockchain_height'.encode(), self.blockchain_height)
+
     def put_block(self, data: Tuple[str, ...]) -> Tuple[bytes, bytes, bytes]:
         merkle_root, data_block = self.preprocess_data(data)
         header_block = self.generate_header(merkle_root)
@@ -30,8 +34,7 @@ class Database:
         block_header_hash = hashlib.sha256(hashlib.sha256(serialized_header_block).digest()).digest()
         self.database.Put(block_header_hash, serialized_data_block)
         self.last_block_hash = block_header_hash
-        self.blockchain_height += 1  # TODO write height to database
-        self.database.Put('last_block_hash'.encode(), block_header_hash)
+        self.blockchain_height += 1
         return block_header_hash, serialized_header_block, serialized_data_block
 
     def get_block(self, hash_digest: bytes, as_raw_data=False) -> Union[Block, bytes]:

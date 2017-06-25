@@ -1,5 +1,5 @@
 import hashlib
-from typing import Tuple, List
+from typing import Tuple
 
 
 class MerkleTree:

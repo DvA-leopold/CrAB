@@ -4,6 +4,10 @@ import leveldb
 import time
 from typing import Tuple, Union
 
+import shutil
+
+import sys
+
 from blockchain_storage import genesys_data, zero_hash_str
 from blockchain_storage.merkle_tree import MerkleTree
 from protocol import block_proto_version
@@ -16,15 +20,16 @@ class Database:
         self.database = leveldb.LevelDB(database_path, create_if_missing=create_if_missing)
         try:
             self.blockchain_height = self.database.Get('blockchain_height'.encode())
-            self.blockchain_height = int.from_bytes(self.blockchain_height, byteorder='big')
+            self.blockchain_height = int.from_bytes(self.blockchain_height, sys.byteorder, signed=False)
         except KeyError:
-            self.database.Put('blockchain_height'.encode(), int(1).to_bytes(32, byteorder='big'))
+            self.database.Put('blockchain_height'.encode(), int(1).to_bytes(8, sys.byteorder, signed=False))
             self.blockchain_height = 1
         _, self.last_block_hash = self.check_genesys_and_last_blocks()
 
     def __del__(self):
+        print('hights: ', self.blockchain_height)
         self.database.Put('last_block_hash'.encode(), self.last_block_hash)
-        self.database.Put('blockchain_height'.encode(), self.blockchain_height)
+        self.database.Put('blockchain_height'.encode(), self.blockchain_height.to_bytes(8, sys.byteorder, signed=False))
 
     def put_block(self, data: Tuple[str, ...]) -> Tuple[bytes, bytes, bytes]:
         merkle_root, data_block = self.preprocess_data(data)
@@ -71,3 +76,6 @@ class Database:
             self.database.Put(genesys_block_hash, data_block.SerializeToString())
             self.database.Put('last_block_hash'.encode(), genesys_block_hash)
         return genesys_block_hash, last_block_hash
+
+    def clear_db(self):
+        shutil.rmtree(self.database_path)

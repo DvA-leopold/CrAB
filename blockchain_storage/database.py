@@ -1,14 +1,12 @@
 import binascii
-import hashlib
 import leveldb
 import time
 from typing import Tuple, Union
 
-import shutil
-
 import sys
 
 from blockchain_storage import genesys_data, zero_hash_str
+from blockchain_storage.hash_wrapper import hash256
 from blockchain_storage.merkle_tree import MerkleTree
 from protocol import block_proto_version
 from protocol.block_pb2 import Block
@@ -19,15 +17,14 @@ class Database:
         self.database_path = database_path
         self.database = leveldb.LevelDB(database_path, create_if_missing=create_if_missing)
         try:
-            self.blockchain_height = self.database.Get('blockchain_height'.encode())
-            self.blockchain_height = int.from_bytes(self.blockchain_height, sys.byteorder, signed=False)
+            b_h = self.database.Get('blockchain_height'.encode())
+            self.blockchain_height = int.from_bytes(b_h, sys.byteorder, signed=False)
         except KeyError:
             self.database.Put('blockchain_height'.encode(), int(1).to_bytes(8, sys.byteorder, signed=False))
             self.blockchain_height = 1
         _, self.last_block_hash = self.check_genesys_and_last_blocks()
 
     def __del__(self):
-        print('hights: ', self.blockchain_height)
         self.database.Put('last_block_hash'.encode(), self.last_block_hash)
         self.database.Put('blockchain_height'.encode(), self.blockchain_height.to_bytes(8, sys.byteorder, signed=False))
 
@@ -36,7 +33,7 @@ class Database:
         header_block = self.generate_header(merkle_root)
         serialized_header_block = header_block.SerializeToString()
         serialized_data_block = data_block.SerializeToString()
-        block_header_hash = hashlib.sha256(hashlib.sha256(serialized_header_block).digest()).digest()
+        block_header_hash = hash256(serialized_header_block)
         self.database.Put(block_header_hash, serialized_data_block)
         self.last_block_hash = block_header_hash
         self.blockchain_height += 1
@@ -66,7 +63,7 @@ class Database:
     def check_genesys_and_last_blocks(self) -> Tuple[bytes, bytes]:
         merkle_root, data_block = self.preprocess_data(genesys_data)
         header_block = self.generate_header(merkle_root, genesys=True)
-        genesys_block_hash = hashlib.sha256(hashlib.sha256(header_block.SerializeToString()).digest()).digest()
+        genesys_block_hash = hash256(header_block.SerializeToString())
         last_block_hash = genesys_block_hash
         try:
             self.database.Get(genesys_block_hash)
@@ -76,6 +73,3 @@ class Database:
             self.database.Put(genesys_block_hash, data_block.SerializeToString())
             self.database.Put('last_block_hash'.encode(), genesys_block_hash)
         return genesys_block_hash, last_block_hash
-
-    def clear_db(self):
-        shutil.rmtree(self.database_path)

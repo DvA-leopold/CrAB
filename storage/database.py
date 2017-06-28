@@ -5,9 +5,9 @@ from typing import Tuple, Union
 
 import sys
 
-from blockchain_storage import genesys_data, zero_hash_str
-from blockchain_storage.hash_wrapper import hash256
-from blockchain_storage.merkle_tree import MerkleTree
+from storage import genesys_data, zero_hash_str
+from storage.utils import hash256
+from storage.merkle_tree import MerkleTree
 from protocol import block_proto_version
 from protocol.block_pb2 import Block
 

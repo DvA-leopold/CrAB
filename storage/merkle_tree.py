@@ -1,7 +1,7 @@
 import hashlib
 from typing import Tuple
 
-from blockchain_storage.hash_wrapper import hash256
+from storage.utils import hash256
 
 
 class MerkleTree:

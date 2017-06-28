@@ -1,5 +1,3 @@
-from typing import Union
-
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.backends.openssl.backend import Backend
 from cryptography.hazmat.primitives import hashes
@@ -7,7 +5,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.ec import generate_private_key, SECP256K1
 
 '''
-This code is not safe to use in real apps
+This code must be carefully checked for crypto issues
 '''
 
 
@@ -15,7 +13,7 @@ class CurveCrypto:
     def __init__(self):
         self.backend = Backend()
         self.curve = SECP256K1()
-        self.private_key = None # FIXME should i save dat key in memory?
+        self.private_key = None # FIXME should i keep this key in memory?
 
     def sign_data(self, data: bytes):
         if not self.private_key:

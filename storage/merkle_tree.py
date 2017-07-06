@@ -7,7 +7,7 @@ from storage.utils import hash256
 class MerkleTree:
     @staticmethod
     def preprocess_tree(data: Tuple[str, ...]) -> bytes:
-        hash_list = [hash256(data_el) for data_el in data]
+        hash_list = [hash256(data_el.encode()) for data_el in data]
         while len(hash_list) > 1:
             if len(hash_list) % 2 != 0:
                 hash_list.append(hash_list[-1])

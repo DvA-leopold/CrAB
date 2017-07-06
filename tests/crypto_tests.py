@@ -18,6 +18,8 @@ class CryptoTests(unittest.TestCase):
         signature = crypto.sign_data(data1)
         self.assertFalse(crypto.verify_data(signature, data2),
                          'signature match, but should not cos data is different')
+        self.assertTrue(crypto.verify_data(signature, data1),
+                        'signature not mutch, but data was sign with this signature')
 
     def test_sign_empty_data(self):
         crypto = CurveCrypto()
@@ -36,3 +38,5 @@ class CryptoTests(unittest.TestCase):
                         'signature for data1 not match')
         self.assertTrue(crypto.verify_data(signature2, data2),
                         'signature for data2 not match')
+        self.assertFalse(crypto.verify_data(signature1, data2),
+                         'signature1 for data2 match, but should not')

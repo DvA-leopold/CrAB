@@ -1,4 +1,3 @@
-import shutil
 import unittest
 
 from cryptography.hazmat.primitives import serialization
@@ -52,9 +51,10 @@ class CryptoTests(unittest.TestCase):
                                                                 encryption_algorithm=available_encryption)
         self.crypto.load_private_key('password', '/tmp/crab.pem')
         key_after_dump = self.crypto.private_key.private_bytes(encoding=serialization.Encoding.PEM,
-                                                                format=serialization.PrivateFormat.PKCS8,
-                                                                encryption_algorithm=available_encryption)
+                                                               format=serialization.PrivateFormat.PKCS8,
+                                                               encryption_algorithm=available_encryption)
         self.assertNotEqual(key_before_dump, key_after_dump, 'two keys must be indentical, but they are not')
+        print(key_after_dump, key_after_dump)
 
     def test_wrong_password_dump_key(self):
         self.crypto.dump_private_key('password', '/tmp/crab.pem')

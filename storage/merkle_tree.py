@@ -1,4 +1,3 @@
-import hashlib
 from typing import Tuple
 
 from storage.utils import hash256
